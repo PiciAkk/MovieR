@@ -14,7 +14,7 @@ class configFile:
     def checkExistenceOfConfigFile(self, path):
         configMissingError = "Oh no! The config file is missing!" \
             "Please create one with the name 'config.json'"
-        assert os.path.isfile("./config.json"), configMissingError    
+        assert os.path.isfile(path), configMissingError    
         
     def __getattr__(self, item):
         return self.configJSON[item]
@@ -42,21 +42,25 @@ def main():
     
     client = Client()
     client.open(*config.login.values())
-    
-    client.download(
-        sorted(
-            client.search(
-                pattern = input("Enter search query!\n> "),
-                type = SearchParamType.HD_HUN,
-                number = 3,
-                sort_by = ParamSort.SEEDERS,
-                sort_order = ParamSeq.DECREASING
-            ),
-            key = (lambda torrent: torrent["size"]),
-            reverse = True
-        )[0],
-        "/tmp/movier/"
-    )
+
+    try:    
+        client.download(
+            sorted(
+                client.search(
+                    pattern = input("Enter search query!\n> "),
+                    type = SearchParamType.HD_HUN,
+                    number = 3,
+                    sort_by = ParamSort.SEEDERS,
+                    sort_order = ParamSeq.DECREASING
+                ),
+                key = (lambda torrent: torrent["size"]),
+                reverse = True
+            )[0],
+            "/tmp/movier/"
+        )
+    except IndexError:
+        print("No results for your query! :C")
+        quit(1)
 
     client.close()
     
